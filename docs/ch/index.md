@@ -13,13 +13,18 @@
 
 2. 选择参数完成部署
 
-![部署参数](./deploy-params.png)
+- ECS:
+![部署参数](deploy-params-ecs.png)
 
-3. 部署后等待部署完成查看服务实例的输出
+- ACS: 
+![部署参数](deploy-params-acs.png)
+
+3. 部署后等待部署完成查看服务实例的输出，包括Jupyter Notebook链接和Token，LLaMA-Factory链接。
 
 ![实例输出](./instance-output.png)
 
 ### 模型微调/训练
+点击部署完时候后获取的LLaMA-Factory链接，进入Llama-Factory页面，完成后续的模型训练、验证等操作。
 #### 模型选择
 + 指定已有模型：
 
