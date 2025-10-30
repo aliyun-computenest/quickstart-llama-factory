@@ -1,4 +1,4 @@
-# 基于ACS集群的大模型微调文档
+# 基于ECS,ACS/ACK集群的大模型微调文档
 
 ## 支持功能
 1. 一站式部署  
@@ -24,7 +24,7 @@
 ![实例输出](./instance-output.png)
 
 ### 模型微调/训练
-点击部署完时候后获取的LLaMA-Factory链接，进入Llama-Factory页面，完成后续的模型训练、验证等操作。
+点击部署完时候后获取的LLaMA-Factory链接，进入LLama-Factory页面，完成后续的模型训练、验证等操作。
 #### 模型选择
 + 指定已有模型：
 
@@ -44,8 +44,8 @@ LLaMA-Factory 支持直接从 Hugging Face 和 ModelScope 下载模型。但需�
 #### 通过验证集验证：
 1. 点击`Evaluate&Validate`
 2. 选择数据集，
-    1. 如果是采用 LLaMa-Factory 自带的数据集，可以默认选择
-    2. 如果需要采用自定义数据集，则需要手动指定数据集目录，然后在页面选择该目录中的验证数据集。具体操作与数据集类似，参考：[https://aliyuque.antfin.com/xuhaoran.xhr/ipqgt7/lqrdn2kl0my1ryuz#nC1IG](#nC1IG)
+    1. 如果是采用 LLaMa-Factory 自带的数据集，选择默认值即可
+    2. 如果需要采用自定义数据集，则需要手动指定数据集目录，然后在页面选择该目录中的验证数据集。具体操作与数据集类似，参考：[数据集（训练和验证）](#dataset-section)
 3. 点击验证
 
 #### 交互页面直接chat验证
@@ -59,6 +59,7 @@ LLaMA-Factory 支持直接从 Hugging Face 和 ModelScope 下载模型。但需�
 ![模型导出概览](./model-export-overview.png)
 
 ### 数据集（训练和验证）
+<a id="dataset-section"></a>
 方式一：通过配置文件新增数据集 URL
 
 对于采用 ModelScope 或 Hugging Face 的数据集，可以直接修改 `LLaMA-Factory/data/dataset_info.json`，新增数据集的 URL 等配置。例如：新增一个 ModelScope 的 `helloworld0/Brain_teasers` 数据集：
@@ -71,7 +72,7 @@ LLaMA-Factory 支持直接从 Hugging Face 和 ModelScope 下载模型。但需�
 
 ![Notebook 登录 Token](./notebook-login-token.png)
 
-2. 进入 `LLaMA-Factory/data` 目录，并右击 `dataset_info.json`，选择 editor
+2. 进入 `LLaMA-Factory/data` 目录，并右击 `dataset_info.json`，选择 Editor
 
 ![打开 dataset_info.json](./open-dataset-info.png)
 
