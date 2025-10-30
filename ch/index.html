@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="计算巢是阿里云开放给企业应用服务商的服务管理平台。服务商能够在计算巢上发布私有化部署服务，为其客户提供云上软件一键部署的能力；同时也支持全托管模式的服务，赋能服务商托管其客户资源。">
+  <title>基于ECS,ACS/ACK集群的大模型微调文档 - Aliyun 计算巢 x Demo</title>
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  
+
+  
+
+  
+  
+
+  
+    <script src="../search/main.js"></script>
+  
+
+  
+
+  <script src="../js/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="nav-inner">
+        <div class="logo">
+          <img src="./img/logo-2x.png">
+        </div>
+        <div class="nav-list">
+          <ul>
+          
+              <li><a href="#ecsacsack">基于ECS,ACS/ACK集群的大模型微调文档</a></li>
+              
+                  <li><a href="#_1">支持功能</a></li>
+                  
+              
+                  <li><a href="#_2">模型微调实例部署</a></li>
+                  
+                      <li class="li-h3"><a href="#_3">模型微调/训练</a></li>
+                  
+                      <li class="li-h3"><a href="#_5">模型验证</a></li>
+                  
+                      <li class="li-h3"><a href="#_7">模型导出</a></li>
+                  
+                      <li class="li-h3"><a href="#_8">数据集（训练和验证）</a></li>
+                  
+                      <li class="li-h3"><a href="#_9">可视化训练追踪</a></li>
+                  
+              
+                  <li><a href="#_10">模型部署结合微调</a></li>
+                  
+              
+                  <li><a href="#_11">其他</a></li>
+                  
+                      <li class="li-h3"><a href="#_12">微调报错怎么查</a></li>
+                  
+                      <li class="li-h3"><a href="#_13">服务网址无法打开排查</a></li>
+                  
+                      <li class="li-h3"><a href="#ecs">ECS 部署</a></li>
+                  
+              
+          
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content theme-github">
+      
+      <div class="content-inner">        
+        
+        <h1 id="ecsacsack">基于ECS,ACS/ACK集群的大模型微调文档</h1>
+<h2 id="_1">支持功能</h2>
+<ol>
+<li>一站式部署<br />
+支持ECS/ACK/ACS多种部署方式，自动配置LLaMA-Factory、Jupyter、SwanLab环境及OSS存储。</li>
+<li>完整微调流程<br />
+基模选择 → 模型微调 → 效果验证 → 模型导出 → 一键部署上线。</li>
+</ol>
+<h2 id="_2">模型微调实例部署</h2>
+<ol>
+<li>进入<a href="https://computenest.console.aliyun.com/ai-lab/model/cn-hangzhou">计算巢模型市场</a>，点击模型微调，进入实例部署页面</li>
+</ol>
+<p><img alt="实例部署页面" src="instance-deploy-page.png" /></p>
+<ol>
+<li>
+<p>选择参数完成部署</p>
+</li>
+<li>
+<p>ECS:
+<img alt="部署参数" src="deploy-params-ecs.png" /></p>
+</li>
+<li>
+<p>ACS: 
+<img alt="部署参数" src="deploy-params-acs.png" /></p>
+</li>
+<li>
+<p>部署后等待部署完成查看服务实例的输出，包括Jupyter Notebook链接和Token，LLaMA-Factory链接。</p>
+</li>
+</ol>
+<p><img alt="实例输出" src="instance-output.png" /></p>
+<h3 id="_3">模型微调/训练</h3>
+<p>点击部署完时候后获取的LLaMA-Factory链接，进入LLama-Factory页面，完成后续的模型训练、验证等操作。</p>
+<h4 id="_4">模型选择</h4>
+<ul>
+<li>指定已有模型：</li>
+</ul>
+<p>例如创建服务实例时选择的基模为Qwen/Qwen3-8B，那么ModelPath就可设置为 <code>/llm-model/Qwen/Qwen3-8B</code>。该路径有两部分组成：<code>/llm-model</code> 为固定路径、<code>Qwen/Qwen3-8B</code> 为模型名称，该名称可以从实例部署参数中获取。</p>
+<ul>
+<li>选择下载模型：</li>
+</ul>
+<p>LLaMA-Factory 支持直接从 Hugging Face 和 ModelScope 下载模型。但需要注意：当实例部署地域为中国地域时，由于网络问题从 Hugging Face 下载可能会报错。</p>
+<p>下面以 Qwen3-8B 作为基础模型，训练数据集采用 glaive_toolcall_zh_demo 为例：</p>
+<p><img alt="微调数据集选择" src="finetune-dataset-selection.png" /></p>
+<h3 id="_5">模型验证</h3>
+<p>验证模型可以从数据集中选择验证数据集，数据集可以采用 LLaMA-Factory 自带的，也可以直接上传到挂载目录，然后选择指定的目录数据集，下面介绍如何进行验证：</p>
+<h4 id="_6">通过验证集验证：</h4>
+<ol>
+<li>点击<code>Evaluate&amp;Validate</code></li>
+<li>选择数据集，<ol>
+<li>如果是采用 LLaMa-Factory 自带的数据集，选择默认值即可</li>
+<li>如果需要采用自定义数据集，则需要手动指定数据集目录，然后在页面选择该目录中的验证数据集。具体操作与数据集类似，参考：<a href="#dataset-section">数据集（训练和验证）</a></li>
+</ol>
+</li>
+<li>点击验证</li>
+</ol>
+<h4 id="chat">交互页面直接chat验证</h4>
+<ol>
+<li>点击<code>Chat</code>按钮</li>
+<li>选择 checkpoint（表示刚刚模型训练的保存点），并点击<code>load model</code>开始加载模型。</li>
+<li>加载模型完成后会出现 Chat 页面，输入 prompt 进行测试即可。</li>
+</ol>
+<h3 id="_7">模型导出</h3>
+<p>模型训练完成并验证通过后，可以将模型导出到 OSS 挂载目录，挂载目录为：<code>/llm-model/models</code></p>
+<p><img alt="模型导出概览" src="model-export-overview.png" /></p>
+<h3 id="_8">数据集（训练和验证）</h3>
+<p><a id="dataset-section"></a>
+方式一：通过配置文件新增数据集 URL</p>
+<p>对于采用 ModelScope 或 Hugging Face 的数据集，可以直接修改 <code>LLaMA-Factory/data/dataset_info.json</code>，新增数据集的 URL 等配置。例如：新增一个 ModelScope 的 <code>helloworld0/Brain_teasers</code> 数据集：</p>
+<ol>
+<li>进入计算巢服务实例页面，并点击 Notebook 的链接，进入 Jupyter Notebook 页面。</li>
+</ol>
+<p><img alt="Notebook 链接入口" src="notebook-link.png" /></p>
+<p>进入 Jupyter 后输入计算巢实例中返回的 Jupyter Notebook Token，随后点击旁边的 <code>Log in</code> 按钮。</p>
+<p><img alt="Notebook 登录 Token" src="notebook-login-token.png" /></p>
+<ol>
+<li>进入 <code>LLaMA-Factory/data</code> 目录，并右击 <code>dataset_info.json</code>，选择 Editor</li>
+</ol>
+<p><img alt="打开 dataset_info.json" src="open-dataset-info.png" /></p>
+<ol>
+<li>新增数据集配置</li>
+</ol>
+<p><img alt="新增数据集配置" src="add-dataset-config.png" /></p>
+<ol>
+<li>编辑完后进入 LLaMA-Factory 页面选择数据集</li>
+</ol>
+<p><img alt="页面选择数据集" src="dataset-select-ui.png" /></p>
+<p>方式二：在 Notebook 中手动下载数据集</p>
+<ol>
+<li>进入 Jupyter Notebook 页面。</li>
+<li>点击 New Terminal 创建一个新的命令行页面</li>
+</ol>
+<p><img alt="新建终端" src="notebook-new-terminal.png" /></p>
+<ol>
+<li>执行 ModelScope、wget 等命令下载数据集到 <code>/llm-model</code> 中指定的目录，例如 <code>/llm-model/datasets</code>。例如下载 ModelScope 上的指定数据集 <a href="https://modelscope.cn/datasets/tomyzcf/qwen3-finetune-test/files">tomyzcf/qwen3-finetune-test</a>，执行如下命令：</li>
+</ol>
+<pre><code class="language-bash">cd /llm-model/datasets
+modelscope download --dataset helloworld0/Brain_teasers --local_dir ./
+</code></pre>
+<p><img alt="终端下载数据集" src="dataset-download-terminal.png" /></p>
+<ol>
+<li>如果 <code>/llm-model/datasets</code> 目录中没有 <code>dataset_info.json</code> 文件，需要新建该文件，并加入对应的配置：</li>
+</ol>
+<pre><code class="language-json">{
+  &quot;Brain_teasers&quot;: {
+    &quot;filename&quot;: &quot;data.json&quot;,
+    &quot;columns&quot;: {
+      &quot;prompt&quot;: &quot;text&quot;
+    }
+  }
+}
+</code></pre>
+<ol>
+<li>进入 LLaMA-Factory 页面选择数据集</li>
+</ol>
+<p><img alt="配置后选择数据集" src="dataset-select-after-config.png" /></p>
+<p>方式三：直接上传到 OSS 后指定数据集目录</p>
+<ol>
+<li>OSS Bucket 的 <code>/llm-model</code> 目录默认会挂载到容器的 <code>/llm-model</code> 目录。可以采用 ossutil 工具手动将文件上传到 OSS <code>/llm-model</code> 目录，这样便可以在容器中获取到该数据。</li>
+<li>最后在 LLaMA-Factory 中指定数据集目录和具体的数据集。</li>
+</ol>
+<p><img alt="指定数据集目录" src="dataset-dir-select.png" /></p>
+<h3 id="_9">可视化训练追踪</h3>
+<p>部署服务实例时会自动安装 SwanLab，方便模型微调可视化。SwanLab 支持多端同时查看模型微调状态，包括手机、Windows 等。使用方式如下：</p>
+<ol>
+<li>登录 SwanLab 官网：<a href="https://swanlab.cn/space/~">https://swanlab.cn/</a>，如果没有账号需要先注册。</li>
+<li>获取 SwanLab API Key，如下所示</li>
+</ol>
+<p><img alt="SwanLab API Key" src="swanlab-apikey.png" /></p>
+<ol>
+<li>在 SwanLab 中创建 Project，例如可以创建一个名为 llamafactory 的 Project。</li>
+<li>在 LLaMA-Factory 部署时选择 SwanLab 可视化，并填写基本信息，如下所示：</li>
+</ol>
+<p><img alt="SwanLab 配置" src="swanlab-config.png" /></p>
+<ol>
+<li>当训练开始后可在 SwanLab 的 Web UI 上查看训练过程。</li>
+</ol>
+<p><img alt="SwanLab 训练界面" src="swanlab-training-ui.png" /></p>
+<h2 id="_10">模型部署结合微调</h2>
+<p>当模型微调验证通过后，可直接导出到挂载的 OSS 目录 <code>/llm-model</code> 或其子目录，随后通过计算巢提供的模型推理服务快速部署该微调后的模型。下面做详细说明：</p>
+<ol>
+<li>通过计算巢模型微调后，将模型导出到 <code>/llm-model/models</code> 目录（该目录为 OSS 的挂载目录）。例如导出时设置 Export dir 为 <code>/llm-model/models/Qwen3-8B-test/</code>，如下所示：</li>
+</ol>
+<p><img alt="导出目录设置" src="export-dir-setting.png" /></p>
+<p>导出完成后可以在 OSS bucket 中看到该模型：</p>
+<p><img alt="OSS 模型列表" src="oss-model-list.png" /></p>
+<p><img alt="OSS 模型文件" src="oss-model-files.png" /></p>
+<ol>
+<li>使用计算巢推理服务部署服务实例。部署时可以选择已有集群和已有 OSS bucket，点击该链接部署：<a href="https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&amp;ServiceId=service-c8bf02afe7544025be47">部署推理服务</a>。参数选择如下：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>参数名称</th>
+<th>选择值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地域</td>
+<td>与模型微调所选地域一致</td>
+</tr>
+<tr>
+<td>集群选项</td>
+<td>已有集群（也支持新建集群）</td>
+</tr>
+<tr>
+<td>K8s 集群 ID</td>
+<td>选择与模型微调一致的 ACS 集群</td>
+</tr>
+<tr>
+<td>OSS Bucket 选项</td>
+<td>已有 Bucket</td>
+</tr>
+<tr>
+<td>已有 OSS Bucket 名称</td>
+<td>选择与模型微调一致的 Bucket</td>
+</tr>
+<tr>
+<td>模型系列</td>
+<td>Custom</td>
+</tr>
+<tr>
+<td>自定义模型路径</td>
+<td>选择刚导出的模型路径</td>
+</tr>
+<tr>
+<td>容器镜像</td>
+<td>根据实际情况调整</td>
+</tr>
+<tr>
+<td>部署脚本</td>
+<td>根据实际情况调整</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="推理部署参数" src="inference-deploy-params.png" /></p>
+<ol>
+<li>点击下一步，等待部署完成后进行访问。</li>
+</ol>
+<p><img alt="部署完成访问" src="deploy-complete-access.png" /></p>
+<h2 id="_11">其他</h2>
+<h3 id="_12">微调报错怎么查</h3>
+<p>方式 1：查看容器日志</p>
+<p><img alt="容器日志" src="container-logs.png" /></p>
+<p>方式 2：在 Jupyter Notebook 执行查看日志命令</p>
+<p><img alt="Notebook 日志命令" src="notebook-log-command.png" /></p>
+<h3 id="_13">服务网址无法打开排查</h3>
+<p>当服务由于某些原因崩溃时，可以采用下面的方案进行排查和重启：</p>
+<h3 id="ecs">ECS 部署</h3>
+<ol>
+<li>登录 ECS（会话管理方式或者 Workbench）。</li>
+<li>查看容器状态，执行 <code>docker ps</code> 查看容器状态。</li>
+</ol>
+<pre><code class="language-bash">root@iZ2zeifk65wurg3nazwow4Z:~# docker ps
+CONTAINER ID   IMAGE                                                                                     COMMAND                  CREATED          STATUS          PORTS                                                                                  NAMES
+8df508515468   compute-nest-registry.cn-hangzhou.cr.aliyuncs.com/computenest-test/llama-factory:v1.1.1   &quot;/usr/local/bin/entr…&quot;   15 minutes ago   Up 15 minutes   0.0.0.0:7860-&gt;7860/tcp, :::7860-&gt;7860/tcp, 0.0.0.0:8888-&gt;8888/tcp, :::8888-&gt;8888/tcp   LLama-Factory
+</code></pre>
+<ol>
+<li>查看日志：<ol>
+<li>执行 <code>docker logs [containerId]</code> 查看容器日志。</li>
+</ol>
+</li>
+</ol>
+<p><img alt="Docker 日志" src="docker-logs.png" /></p>
+<pre><code>2. 也可以执行 `docker exec -it [containerId] /bin/bash` 进入容器查看 Web UI 日志和 Jupyter 日志，日志所在目录：`/tmp`。
+</code></pre>
+<p><img alt="/tmp 日志目录" src="tmp-logs-dir.png" /></p>
+<ol>
+<li>重启服务（以下命令均可重启）：</li>
+</ol>
+<pre><code class="language-bash">systemctl restart finetune
+</code></pre>
+<pre><code class="language-bash">docker restart LLama-Factory
+# 或者
+docker restart [ContainerId]
+</code></pre>
+        
+      </div>
+
+      <div class="copyrights">© 2009-2022 Aliyun.com 版权所有</div>
+    </div>
+  </div>
+  
+  <!--
+  MkDocs version      : 1.6.1
+  Docs Build Date UTC : 2025-10-30 03:39:27.554268+00:00
+  -->
+</body>
+</html>
